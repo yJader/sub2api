@@ -645,6 +645,7 @@ export interface AdminGroup extends Group {
   messages_dispatch_model_config?: OpenAIMessagesDispatchModelConfig
   models_list_config?: ModelsListConfig
   codex_models_manifest_config?: CodexModelsManifestConfig
+  openai_compact_rebalance_enabled: boolean
 
   // 分组排序
   sort_order: number
@@ -830,6 +831,7 @@ export interface CreateGroupRequest {
   codex_models_manifest_config?: CodexModelsManifestConfig
   allow_messages_dispatch?: boolean
   allow_live?: boolean
+  openai_compact_rebalance_enabled?: boolean
   default_mapped_model?: string
   messages_dispatch_model_config?: OpenAIMessagesDispatchModelConfig
   model_routing?: Record<string, number[]> | null
@@ -896,6 +898,7 @@ export interface UpdateGroupRequest {
   codex_models_manifest_config?: CodexModelsManifestConfig
   allow_messages_dispatch?: boolean
   allow_live?: boolean
+  openai_compact_rebalance_enabled?: boolean
   default_mapped_model?: string
   messages_dispatch_model_config?: OpenAIMessagesDispatchModelConfig
   model_routing?: Record<string, number[]> | null

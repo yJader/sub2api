@@ -426,6 +426,7 @@ func (h *OpenAIGatewayHandler) Responses(c *gin.Context) {
 
 	setOpsRequestContext(c, "", false)
 	sessionHashBody := body
+	isCompactRebalanceRequest := isOpenAICompactionRequest(c, sessionHashBody)
 	body, ok = h.normalizeOpenAIResponsesCompactRequest(c, reqLog, body)
 	if !ok {
 		return
@@ -953,6 +954,18 @@ func (h *OpenAIGatewayHandler) Responses(c *gin.Context) {
 		} else {
 			h.gatewayService.ReportOpenAIAccountScheduleResult(account, openAIAccountScheduleModel(c, account, forwardModel, requireCompact, result), openAIForwardSucceededForScheduling(result), nil)
 		}
+		if isCompactRebalanceRequest && apiKey.Group != nil && apiKey.Group.Platform == service.PlatformOpenAI && apiKey.Group.OpenAICompactRebalanceEnabled && result != nil && openAIForwardSucceededForScheduling(result) {
+			if _, hasStreamErr := service.GetOpsStreamError(c); !hasStreamErr {
+				cleanupCtx, cancel := context.WithTimeout(context.WithoutCancel(c.Request.Context()), 5*time.Second)
+				deleted, cleanupErr := h.gatewayService.ClearStickySessionAfterCompact(cleanupCtx, apiKey.GroupID, sessionHash, account.ID)
+				cancel()
+				if cleanupErr != nil {
+					reqLog.Warn("openai.compact_sticky_rebalance_failed", zap.Int64("account_id", account.ID), zap.Error(cleanupErr))
+				} else if deleted {
+					reqLog.Info("openai.compact_sticky_rebalanced", zap.Int64("account_id", account.ID))
+				}
+			}
+		}
 
 		// 使用量记录通过有界 worker 池提交，避免请求热路径创建无界 goroutine。
 		submitResponsesUsage(result)
@@ -966,6 +979,14 @@ func (h *OpenAIGatewayHandler) Responses(c *gin.Context) {
 
 func isOpenAILegacyCompactPath(c *gin.Context) bool {
 	return service.IsOpenAIResponsesCompactPath(c)
+}
+
+// isOpenAICompactionRequest identifies every remote-compaction wire form before
+// request normalization changes the path. Both legacy body-signal promotion and
+// remote_compaction_v2 remain eligible to end the sticky session on success.
+func isOpenAICompactionRequest(c *gin.Context, body []byte) bool {
+	return isOpenAILegacyCompactPath(c) ||
+		(isBareOpenAIResponsesPath(c) && service.HasCompactionTriggerInInput(body))
 }
 
 // isBareOpenAIResponsesPath 仅匹配裸 /responses 端点（无 /compact 等子路径），

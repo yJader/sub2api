@@ -22,6 +22,13 @@ type gatewayCache struct {
 	rdb *redis.Client
 }
 
+var deleteStickySessionIfMatchesScript = redis.NewScript(`
+	if redis.call('GET', KEYS[1]) ~= ARGV[1] then
+		return 0
+	end
+	return redis.call('DEL', KEYS[1])
+`)
+
 func NewGatewayCache(rdb *redis.Client) service.GatewayCache {
 	return &gatewayCache{rdb: rdb}
 }
@@ -68,6 +75,21 @@ func (c *gatewayCache) RefreshSessionTTL(ctx context.Context, groupID int64, ses
 func (c *gatewayCache) DeleteSessionAccountID(ctx context.Context, groupID int64, sessionHash string) error {
 	key := buildSessionKey(groupID, sessionHash)
 	return c.rdb.Del(ctx, key).Err()
+}
+
+// DeleteSessionAccountIDIfMatches atomically removes a sticky binding only
+// when it still points at expectedAccountID. This prevents a completed compact
+// request from deleting a newer binding established concurrently.
+func (c *gatewayCache) DeleteSessionAccountIDIfMatches(ctx context.Context, groupID int64, sessionHash string, expectedAccountID int64) (bool, error) {
+	if c == nil || c.rdb == nil || expectedAccountID <= 0 {
+		return false, nil
+	}
+	key := buildSessionKey(groupID, sessionHash)
+	n, err := deleteStickySessionIfMatchesScript.Run(ctx, c.rdb, []string{key}, strconv.FormatInt(expectedAccountID, 10)).Int()
+	if err != nil {
+		return false, err
+	}
+	return n == 1, nil
 }
 
 var claimOpenAIResponsesSessionWindowScript = redis.NewScript(`

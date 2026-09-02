@@ -101,13 +101,14 @@ type APIKeyAuthGroupSnapshot struct {
 	SupportedModelScopes []string `json:"supported_model_scopes,omitempty"`
 
 	// OpenAI Messages 调度配置（仅 openai 平台使用）
-	AllowMessagesDispatch       bool                              `json:"allow_messages_dispatch"`
-	AllowLive                   bool                              `json:"allow_live"`
-	ForceOpenAIFast             bool                              `json:"force_openai_fast"`
-	FreeOpenAIFast              bool                              `json:"free_openai_fast"`
-	DefaultMappedModel          string                            `json:"default_mapped_model,omitempty"`
-	MessagesDispatchModelConfig OpenAIMessagesDispatchModelConfig `json:"messages_dispatch_model_config,omitempty"`
-	ModelsListConfig            GroupModelsListConfig             `json:"models_list_config,omitempty"`
+	AllowMessagesDispatch         bool                              `json:"allow_messages_dispatch"`
+	AllowLive                     bool                              `json:"allow_live"`
+	OpenAICompactRebalanceEnabled bool                              `json:"openai_compact_rebalance_enabled"`
+	ForceOpenAIFast               bool                              `json:"force_openai_fast"`
+	FreeOpenAIFast                bool                              `json:"free_openai_fast"`
+	DefaultMappedModel            string                            `json:"default_mapped_model,omitempty"`
+	MessagesDispatchModelConfig   OpenAIMessagesDispatchModelConfig `json:"messages_dispatch_model_config,omitempty"`
+	ModelsListConfig              GroupModelsListConfig             `json:"models_list_config,omitempty"`
 	// CodexModelsManifestConfig 与 ModelsListConfig 一样在认证快照分组里透传，
 	// Codex /models handler 直接读认证分组对象。
 	CodexModelsManifestConfig GroupCodexModelsManifestConfig `json:"codex_models_manifest_config,omitempty"`

@@ -242,6 +242,9 @@ func (Group) Fields() []ent.Field {
 		field.Bool("allow_live").
 			Default(false).
 			Comment("是否允许此 OpenAI 分组访问 Live 接口"),
+		field.Bool("openai_compact_rebalance_enabled").
+			Default(false).
+			Comment("OpenAI compact 成功后是否清除会话账号粘性，以便下一请求重新调度"),
 		field.Bool("force_openai_fast").
 			Default(false).
 			Comment("是否强制此 OpenAI/Composite 分组请求使用 service_tier=priority"),

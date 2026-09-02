@@ -989,6 +989,20 @@ func (_u *GroupUpdate) SetNillableAllowLive(v *bool) *GroupUpdate {
 	return _u
 }
 
+// SetOpenaiCompactRebalanceEnabled sets the "openai_compact_rebalance_enabled" field.
+func (_u *GroupUpdate) SetOpenaiCompactRebalanceEnabled(v bool) *GroupUpdate {
+	_u.mutation.SetOpenaiCompactRebalanceEnabled(v)
+	return _u
+}
+
+// SetNillableOpenaiCompactRebalanceEnabled sets the "openai_compact_rebalance_enabled" field if the given value is not nil.
+func (_u *GroupUpdate) SetNillableOpenaiCompactRebalanceEnabled(v *bool) *GroupUpdate {
+	if v != nil {
+		_u.SetOpenaiCompactRebalanceEnabled(*v)
+	}
+	return _u
+}
+
 // SetForceOpenaiFast sets the "force_openai_fast" field.
 func (_u *GroupUpdate) SetForceOpenaiFast(v bool) *GroupUpdate {
 	_u.mutation.SetForceOpenaiFast(v)
@@ -1857,6 +1871,9 @@ func (_u *GroupUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.AllowLive(); ok {
 		_spec.SetField(group.FieldAllowLive, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.OpenaiCompactRebalanceEnabled(); ok {
+		_spec.SetField(group.FieldOpenaiCompactRebalanceEnabled, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.ForceOpenaiFast(); ok {
 		_spec.SetField(group.FieldForceOpenaiFast, field.TypeBool, value)
@@ -3183,6 +3200,20 @@ func (_u *GroupUpdateOne) SetNillableAllowLive(v *bool) *GroupUpdateOne {
 	return _u
 }
 
+// SetOpenaiCompactRebalanceEnabled sets the "openai_compact_rebalance_enabled" field.
+func (_u *GroupUpdateOne) SetOpenaiCompactRebalanceEnabled(v bool) *GroupUpdateOne {
+	_u.mutation.SetOpenaiCompactRebalanceEnabled(v)
+	return _u
+}
+
+// SetNillableOpenaiCompactRebalanceEnabled sets the "openai_compact_rebalance_enabled" field if the given value is not nil.
+func (_u *GroupUpdateOne) SetNillableOpenaiCompactRebalanceEnabled(v *bool) *GroupUpdateOne {
+	if v != nil {
+		_u.SetOpenaiCompactRebalanceEnabled(*v)
+	}
+	return _u
+}
+
 // SetForceOpenaiFast sets the "force_openai_fast" field.
 func (_u *GroupUpdateOne) SetForceOpenaiFast(v bool) *GroupUpdateOne {
 	_u.mutation.SetForceOpenaiFast(v)
@@ -4081,6 +4112,9 @@ func (_u *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error)
 	}
 	if value, ok := _u.mutation.AllowLive(); ok {
 		_spec.SetField(group.FieldAllowLive, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.OpenaiCompactRebalanceEnabled(); ok {
+		_spec.SetField(group.FieldOpenaiCompactRebalanceEnabled, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.ForceOpenaiFast(); ok {
 		_spec.SetField(group.FieldForceOpenaiFast, field.TypeBool, value)

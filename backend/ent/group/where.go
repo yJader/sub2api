@@ -290,6 +290,11 @@ func AllowLive(v bool) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldAllowLive, v))
 }
 
+// OpenaiCompactRebalanceEnabled applies equality check predicate on the "openai_compact_rebalance_enabled" field. It's identical to OpenaiCompactRebalanceEnabledEQ.
+func OpenaiCompactRebalanceEnabled(v bool) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldOpenaiCompactRebalanceEnabled, v))
+}
+
 // ForceOpenaiFast applies equality check predicate on the "force_openai_fast" field. It's identical to ForceOpenaiFastEQ.
 func ForceOpenaiFast(v bool) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldForceOpenaiFast, v))
@@ -2283,6 +2288,16 @@ func AllowLiveEQ(v bool) predicate.Group {
 // AllowLiveNEQ applies the NEQ predicate on the "allow_live" field.
 func AllowLiveNEQ(v bool) predicate.Group {
 	return predicate.Group(sql.FieldNEQ(FieldAllowLive, v))
+}
+
+// OpenaiCompactRebalanceEnabledEQ applies the EQ predicate on the "openai_compact_rebalance_enabled" field.
+func OpenaiCompactRebalanceEnabledEQ(v bool) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldOpenaiCompactRebalanceEnabled, v))
+}
+
+// OpenaiCompactRebalanceEnabledNEQ applies the NEQ predicate on the "openai_compact_rebalance_enabled" field.
+func OpenaiCompactRebalanceEnabledNEQ(v bool) predicate.Group {
+	return predicate.Group(sql.FieldNEQ(FieldOpenaiCompactRebalanceEnabled, v))
 }
 
 // ForceOpenaiFastEQ applies the EQ predicate on the "force_openai_fast" field.

@@ -541,6 +541,7 @@ func (s *adminServiceImpl) CreateGroup(ctx context.Context, input *CreateGroupIn
 	sanitizeGroupOpenAIFast(group)
 	if group.Platform != PlatformOpenAI && group.Platform != PlatformComposite {
 		group.AllowLive = false
+		group.OpenAICompactRebalanceEnabled = false
 	}
 	sanitizeGroupReasoningEffortPolicy(group)
 	if err := s.groupRepo.Create(ctx, group); err != nil {
@@ -943,6 +944,7 @@ func (s *adminServiceImpl) UpdateGroup(ctx context.Context, id int64, input *Upd
 	sanitizeGroupOpenAIFast(group)
 	if group.Platform != PlatformOpenAI && group.Platform != PlatformComposite {
 		group.AllowLive = false
+		group.OpenAICompactRebalanceEnabled = false
 	}
 	sanitizeGroupReasoningEffortPolicy(group)
 	// 固定账号 manifest 配置：按最终平台归一化（切出 openai 平台时静默归零，

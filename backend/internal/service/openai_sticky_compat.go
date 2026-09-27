@@ -23,6 +23,13 @@ var (
 	openAIStickyLegacyDualWriteTotal    atomic.Int64
 )
 
+// stickySessionConditionalDeleter is an optional GatewayCache capability used
+// by compact rebalancing. Keeping it separate from GatewayCache preserves the
+// existing cache contract for non-Redis implementations and lightweight tests.
+type stickySessionConditionalDeleter interface {
+	DeleteSessionAccountIDIfMatches(ctx context.Context, groupID int64, sessionHash string, expectedAccountID int64) (bool, error)
+}
+
 func openAIStickyCompatStats() (legacyReadFallbackTotal, legacyReadFallbackHit, legacyDualWriteTotal int64) {
 	return openAIStickyLegacyReadFallbackTotal.Load(),
 		openAIStickyLegacyReadFallbackHit.Load(),
@@ -218,4 +225,41 @@ func (s *OpenAIGatewayService) deleteStickySessionAccountID(ctx context.Context,
 		_ = s.cache.DeleteSessionAccountID(ctx, derefGroupID(groupID), legacyKey)
 	}
 	return err
+}
+
+// ClearStickySessionAfterCompact clears this request's OpenAI sticky binding
+// only when it still points to the account that completed compact. It does not
+// alter the client session identifier or prompt-cache key, so the next normal
+// request re-enters the scheduler with its original cache identity.
+func (s *OpenAIGatewayService) ClearStickySessionAfterCompact(ctx context.Context, groupID *int64, sessionHash string, expectedAccountID int64) (bool, error) {
+	if s == nil || s.cache == nil || expectedAccountID <= 0 {
+		return false, nil
+	}
+	deleter, ok := s.cache.(stickySessionConditionalDeleter)
+	if !ok {
+		return false, nil
+	}
+
+	primaryKey := s.openAISessionCacheKey(sessionHash)
+	if primaryKey == "" {
+		return false, nil
+	}
+
+	group := derefGroupID(groupID)
+	deleted, err := deleter.DeleteSessionAccountIDIfMatches(ctx, group, primaryKey, expectedAccountID)
+	if err != nil {
+		return false, err
+	}
+
+	// Clear the migration-era key as well. This is intentionally independent of
+	// the current fallback flags: an old key must not revive the just-cleared
+	// affinity if those compatibility flags are enabled later.
+	if legacyKey := s.openAILegacySessionCacheKey(ctx, sessionHash); legacyKey != "" {
+		legacyDeleted, legacyErr := deleter.DeleteSessionAccountIDIfMatches(ctx, group, legacyKey, expectedAccountID)
+		if legacyErr != nil {
+			return deleted, legacyErr
+		}
+		deleted = deleted || legacyDeleted
+	}
+	return deleted, nil
 }

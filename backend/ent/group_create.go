@@ -704,6 +704,20 @@ func (_c *GroupCreate) SetNillableAllowLive(v *bool) *GroupCreate {
 	return _c
 }
 
+// SetOpenaiCompactRebalanceEnabled sets the "openai_compact_rebalance_enabled" field.
+func (_c *GroupCreate) SetOpenaiCompactRebalanceEnabled(v bool) *GroupCreate {
+	_c.mutation.SetOpenaiCompactRebalanceEnabled(v)
+	return _c
+}
+
+// SetNillableOpenaiCompactRebalanceEnabled sets the "openai_compact_rebalance_enabled" field if the given value is not nil.
+func (_c *GroupCreate) SetNillableOpenaiCompactRebalanceEnabled(v *bool) *GroupCreate {
+	if v != nil {
+		_c.SetOpenaiCompactRebalanceEnabled(*v)
+	}
+	return _c
+}
+
 // SetForceOpenaiFast sets the "force_openai_fast" field.
 func (_c *GroupCreate) SetForceOpenaiFast(v bool) *GroupCreate {
 	_c.mutation.SetForceOpenaiFast(v)
@@ -1151,6 +1165,10 @@ func (_c *GroupCreate) defaults() error {
 		v := group.DefaultAllowLive
 		_c.mutation.SetAllowLive(v)
 	}
+	if _, ok := _c.mutation.OpenaiCompactRebalanceEnabled(); !ok {
+		v := group.DefaultOpenaiCompactRebalanceEnabled
+		_c.mutation.SetOpenaiCompactRebalanceEnabled(v)
+	}
 	if _, ok := _c.mutation.ForceOpenaiFast(); !ok {
 		v := group.DefaultForceOpenaiFast
 		_c.mutation.SetForceOpenaiFast(v)
@@ -1357,6 +1375,9 @@ func (_c *GroupCreate) check() error {
 	}
 	if _, ok := _c.mutation.AllowLive(); !ok {
 		return &ValidationError{Name: "allow_live", err: errors.New(`ent: missing required field "Group.allow_live"`)}
+	}
+	if _, ok := _c.mutation.OpenaiCompactRebalanceEnabled(); !ok {
+		return &ValidationError{Name: "openai_compact_rebalance_enabled", err: errors.New(`ent: missing required field "Group.openai_compact_rebalance_enabled"`)}
 	}
 	if _, ok := _c.mutation.ForceOpenaiFast(); !ok {
 		return &ValidationError{Name: "force_openai_fast", err: errors.New(`ent: missing required field "Group.force_openai_fast"`)}
@@ -1648,6 +1669,10 @@ func (_c *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.AllowLive(); ok {
 		_spec.SetField(group.FieldAllowLive, field.TypeBool, value)
 		_node.AllowLive = value
+	}
+	if value, ok := _c.mutation.OpenaiCompactRebalanceEnabled(); ok {
+		_spec.SetField(group.FieldOpenaiCompactRebalanceEnabled, field.TypeBool, value)
+		_node.OpenaiCompactRebalanceEnabled = value
 	}
 	if value, ok := _c.mutation.ForceOpenaiFast(); ok {
 		_spec.SetField(group.FieldForceOpenaiFast, field.TypeBool, value)
@@ -2720,6 +2745,18 @@ func (u *GroupUpsert) SetAllowLive(v bool) *GroupUpsert {
 // UpdateAllowLive sets the "allow_live" field to the value that was provided on create.
 func (u *GroupUpsert) UpdateAllowLive() *GroupUpsert {
 	u.SetExcluded(group.FieldAllowLive)
+	return u
+}
+
+// SetOpenaiCompactRebalanceEnabled sets the "openai_compact_rebalance_enabled" field.
+func (u *GroupUpsert) SetOpenaiCompactRebalanceEnabled(v bool) *GroupUpsert {
+	u.Set(group.FieldOpenaiCompactRebalanceEnabled, v)
+	return u
+}
+
+// UpdateOpenaiCompactRebalanceEnabled sets the "openai_compact_rebalance_enabled" field to the value that was provided on create.
+func (u *GroupUpsert) UpdateOpenaiCompactRebalanceEnabled() *GroupUpsert {
+	u.SetExcluded(group.FieldOpenaiCompactRebalanceEnabled)
 	return u
 }
 
@@ -3967,6 +4004,20 @@ func (u *GroupUpsertOne) SetAllowLive(v bool) *GroupUpsertOne {
 func (u *GroupUpsertOne) UpdateAllowLive() *GroupUpsertOne {
 	return u.Update(func(s *GroupUpsert) {
 		s.UpdateAllowLive()
+	})
+}
+
+// SetOpenaiCompactRebalanceEnabled sets the "openai_compact_rebalance_enabled" field.
+func (u *GroupUpsertOne) SetOpenaiCompactRebalanceEnabled(v bool) *GroupUpsertOne {
+	return u.Update(func(s *GroupUpsert) {
+		s.SetOpenaiCompactRebalanceEnabled(v)
+	})
+}
+
+// UpdateOpenaiCompactRebalanceEnabled sets the "openai_compact_rebalance_enabled" field to the value that was provided on create.
+func (u *GroupUpsertOne) UpdateOpenaiCompactRebalanceEnabled() *GroupUpsertOne {
+	return u.Update(func(s *GroupUpsert) {
+		s.UpdateOpenaiCompactRebalanceEnabled()
 	})
 }
 
@@ -5413,6 +5464,20 @@ func (u *GroupUpsertBulk) SetAllowLive(v bool) *GroupUpsertBulk {
 func (u *GroupUpsertBulk) UpdateAllowLive() *GroupUpsertBulk {
 	return u.Update(func(s *GroupUpsert) {
 		s.UpdateAllowLive()
+	})
+}
+
+// SetOpenaiCompactRebalanceEnabled sets the "openai_compact_rebalance_enabled" field.
+func (u *GroupUpsertBulk) SetOpenaiCompactRebalanceEnabled(v bool) *GroupUpsertBulk {
+	return u.Update(func(s *GroupUpsert) {
+		s.SetOpenaiCompactRebalanceEnabled(v)
+	})
+}
+
+// UpdateOpenaiCompactRebalanceEnabled sets the "openai_compact_rebalance_enabled" field to the value that was provided on create.
+func (u *GroupUpsertBulk) UpdateOpenaiCompactRebalanceEnabled() *GroupUpsertBulk {
+	return u.Update(func(s *GroupUpsert) {
+		s.UpdateOpenaiCompactRebalanceEnabled()
 	})
 }
 

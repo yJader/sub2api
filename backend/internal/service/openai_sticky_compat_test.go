@@ -9,6 +9,19 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type compactStickyCache struct {
+	GatewayCache
+	bindings map[string]int64
+}
+
+func (c *compactStickyCache) DeleteSessionAccountIDIfMatches(_ context.Context, _ int64, sessionHash string, expectedAccountID int64) (bool, error) {
+	if c.bindings[sessionHash] != expectedAccountID {
+		return false, nil
+	}
+	delete(c.bindings, sessionHash)
+	return true, nil
+}
+
 func TestGetStickySessionAccountID_FallbackToLegacyKey(t *testing.T) {
 	beforeFallbackTotal, beforeFallbackHit, _ := openAIStickyCompatStats()
 
@@ -82,6 +95,26 @@ func TestSetStickySessionAccountID_DualWriteOldDisabled(t *testing.T) {
 	require.Equal(t, int64(9), cache.sessionBindings["openai:new-hash"])
 	_, exists := cache.sessionBindings["openai:legacy-hash"]
 	require.False(t, exists)
+}
+
+func TestClearStickySessionAfterCompact_OnlyDeletesMatchingBindings(t *testing.T) {
+	cache := &compactStickyCache{bindings: map[string]int64{
+		"openai:new-hash":    9,
+		"openai:legacy-hash": 9,
+	}}
+	svc := &OpenAIGatewayService{cache: cache}
+	ctx := withOpenAILegacySessionHash(context.Background(), "legacy-hash")
+
+	deleted, err := svc.ClearStickySessionAfterCompact(ctx, nil, "new-hash", 9)
+	require.NoError(t, err)
+	require.True(t, deleted)
+	require.Empty(t, cache.bindings)
+
+	cache.bindings["openai:new-hash"] = 10
+	deleted, err = svc.ClearStickySessionAfterCompact(ctx, nil, "new-hash", 9)
+	require.NoError(t, err)
+	require.False(t, deleted)
+	require.Equal(t, int64(10), cache.bindings["openai:new-hash"])
 }
 
 func TestSnapshotOpenAICompatibilityFallbackMetrics(t *testing.T) {

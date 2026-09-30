@@ -638,6 +638,9 @@ export default {
         backendModeDescription:
           'Disables user registration, public site, and self-service features. Only admin can log in and manage the platform.',
         siteName: 'Site Name',
+        accountTestPrompt: 'Account test prompt',
+        accountTestPromptPlaceholder: 'hi',
+        accountTestPromptHint: 'Used by account connection text tests. Leave blank to use hi.',
         siteNamePlaceholder: 'Sub2API',
         siteNameHint: 'Displayed in emails and page titles',
         siteSubtitle: 'Site Subtitle',

@@ -401,6 +401,7 @@ func (s *SettingService) buildSystemSettingsUpdates(ctx context.Context, setting
 	// Identity patch configuration (Claude -> Gemini)
 	updates[SettingKeyEnableIdentityPatch] = strconv.FormatBool(settings.EnableIdentityPatch)
 	updates[SettingKeyIdentityPatchPrompt] = settings.IdentityPatchPrompt
+	updates[SettingKeyAccountTestPrompt] = normalizeAccountTestPrompt(settings.AccountTestPrompt)
 
 	// Ops monitoring (vNext)
 	updates[SettingKeyOpsMonitoringEnabled] = strconv.FormatBool(settings.OpsMonitoringEnabled)

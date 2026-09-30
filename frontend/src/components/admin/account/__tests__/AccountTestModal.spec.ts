@@ -2,9 +2,10 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import AccountTestModal from '../AccountTestModal.vue'
 
-const { getAvailableModels, copyToClipboard } = vi.hoisted(() => ({
+const { getAvailableModels, copyToClipboard, refreshAccountTestPrompt } = vi.hoisted(() => ({
   getAvailableModels: vi.fn(),
-  copyToClipboard: vi.fn()
+  copyToClipboard: vi.fn(),
+  refreshAccountTestPrompt: vi.fn()
 }))
 
 vi.mock('@/api/admin', () => ({
@@ -21,10 +22,19 @@ vi.mock('@/composables/useClipboard', () => ({
   })
 }))
 
+vi.mock('@/stores/adminSettings', () => ({
+  useAdminSettingsStore: () => ({
+    accountTestPrompt: 'ciallo',
+    refreshAccountTestPrompt
+  })
+}))
+
 vi.mock('vue-i18n', async () => {
   const actual = await vi.importActual<typeof import('vue-i18n')>('vue-i18n')
   const messages: Record<string, string> = {
-    'admin.accounts.imagePromptDefault': 'Generate a cute orange cat astronaut sticker on a clean pastel background.'
+    'admin.accounts.imagePromptDefault': 'Generate a cute orange cat astronaut sticker on a clean pastel background.',
+    'admin.accounts.sendingTestMessage': 'Sending test message: "{prompt}"',
+    'admin.accounts.testPrompt': 'Prompt: "{prompt}"'
   }
   return {
     ...actual,
@@ -36,7 +46,11 @@ vi.mock('vue-i18n', async () => {
         if (key === 'admin.accounts.imagePreviewAlt' && params?.index) {
           return `test-image-${params.index}`
         }
-        return messages[key] || key
+        const message = messages[key] || key
+        return Object.entries(params || {}).reduce(
+          (result, [name, value]) => result.replace(`{${name}}`, String(value)),
+          message
+        )
       }
     })
   }
@@ -97,6 +111,7 @@ describe('AccountTestModal', () => {
       { id: 'gemini-3.1-flash-image', display_name: 'Gemini 3.1 Flash Image' }
     ])
     copyToClipboard.mockReset()
+    refreshAccountTestPrompt.mockResolvedValue(undefined)
     Object.defineProperty(globalThis, 'localStorage', {
       value: {
         getItem: vi.fn((key: string) => (key === 'auth_token' ? 'test-token' : null)),
@@ -219,5 +234,22 @@ describe('AccountTestModal', () => {
       prompt: '',
       mode: 'compact'
     })
+  })
+
+  it('loads and displays the configured text test prompt', async () => {
+    getAvailableModels.mockResolvedValue([{ id: 'claude-3-5-sonnet', display_name: 'Claude' }])
+    const wrapper = mountModal({
+      id: 42,
+      name: 'Claude Account',
+      platform: 'anthropic',
+      type: 'apikey',
+      status: 'active'
+    })
+
+    await wrapper.setProps({ show: true })
+    await flushPromises()
+
+    expect(refreshAccountTestPrompt).toHaveBeenCalled()
+    expect(wrapper.text()).toContain('Prompt: "ciallo"')
   })
 })

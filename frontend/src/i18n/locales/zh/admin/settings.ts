@@ -631,6 +631,9 @@ export default {
         backendModeDescription:
           '禁用用户注册、公开页面和自助服务功能。仅管理员可以登录和管理平台。',
         siteName: '站点名称',
+        accountTestPrompt: '账号测试提示词',
+        accountTestPromptPlaceholder: 'hi',
+        accountTestPromptHint: '用于账号连接的文本测试；留空时使用 hi。',
         siteNameHint: '显示在邮件和页面标题中',
         siteNamePlaceholder: 'Sub2API',
         siteSubtitle: '站点副标题',

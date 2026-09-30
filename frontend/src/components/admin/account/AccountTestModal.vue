@@ -375,10 +375,15 @@ import { useClipboard } from '@/composables/useClipboard'
 import { buildApiUrl } from '@/api/client'
 import { ADMIN_UI_REQUEST_HEADER } from '@/api/adminUIRequest'
 import { adminAPI } from '@/api/admin'
+import { useAdminSettingsStore } from '@/stores/adminSettings'
 import type { Account, ClaudeModel } from '@/types'
 
 const { t } = useI18n()
 const { copyToClipboard } = useClipboard()
+const adminSettingsStore = useAdminSettingsStore()
+const configuredAccountTestPrompt = computed(
+  () => adminSettingsStore.accountTestPrompt?.trim() || 'hi'
+)
 
 interface OutputLine {
   text: string
@@ -670,7 +675,7 @@ const testModeSummary = computed(() => {
     }
   }
   if (supportsImageTest.value) return t('admin.accounts.imageTestMode')
-  return t('admin.accounts.testPrompt')
+  return t('admin.accounts.testPrompt', { prompt: configuredAccountTestPrompt.value })
 })
 
 const canStartTest = computed(() => {
@@ -741,6 +746,11 @@ watch(
       testMode.value = 'default'
       grokTestMode.value = 'text'
       resetState()
+      try {
+        await adminSettingsStore.refreshAccountTestPrompt()
+      } catch (error) {
+        console.error('Failed to load account test prompt:', error)
+      }
       await loadAvailableModels()
       if (isGrokAccount.value) {
         pickDefaultModelForMode()
@@ -969,10 +979,10 @@ const handleEvent = (event: {
                     ? t('admin.accounts.grok.sendingSTTRequest')
                     : grokTestMode.value === 'realtime'
                       ? t('admin.accounts.grok.sendingRealtimeRequest')
-                      : t('admin.accounts.sendingTestMessage')
+                      : t('admin.accounts.sendingTestMessage', { prompt: configuredAccountTestPrompt.value })
           : supportsImageTest.value
             ? t('admin.accounts.sendingImageRequest')
-            : t('admin.accounts.sendingTestMessage'),
+            : t('admin.accounts.sendingTestMessage', { prompt: configuredAccountTestPrompt.value }),
         'text-gray-400'
       )
       addLine('', 'text-gray-300')

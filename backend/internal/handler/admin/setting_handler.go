@@ -281,6 +281,7 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 		FallbackModelAntigravity:                               settings.FallbackModelAntigravity,
 		EnableIdentityPatch:                                    settings.EnableIdentityPatch,
 		IdentityPatchPrompt:                                    settings.IdentityPatchPrompt,
+		AccountTestPrompt:                                      settings.AccountTestPrompt,
 		OpsMonitoringEnabled:                                   opsEnabled && settings.OpsMonitoringEnabled,
 		OpsRealtimeMonitoringEnabled:                           settings.OpsRealtimeMonitoringEnabled,
 		OpsQueryModeDefault:                                    settings.OpsQueryModeDefault,

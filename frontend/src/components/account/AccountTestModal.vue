@@ -189,7 +189,7 @@
           {{
             supportsImageTest
               ? t('admin.accounts.imageTestMode')
-              : t('admin.accounts.testPrompt')
+              : t('admin.accounts.testPrompt', { prompt: configuredAccountTestPrompt })
           }}
         </span>
       </div>
@@ -251,10 +251,15 @@ import { Icon } from '@/components/icons'
 import { useClipboard } from '@/composables/useClipboard'
 import { buildApiUrl } from '@/api/client'
 import { adminAPI } from '@/api/admin'
+import { useAdminSettingsStore } from '@/stores/adminSettings'
 import type { Account, ClaudeModel } from '@/types'
 
 const { t } = useI18n()
 const { copyToClipboard } = useClipboard()
+const adminSettingsStore = useAdminSettingsStore()
+const configuredAccountTestPrompt = computed(
+  () => adminSettingsStore.accountTestPrompt?.trim() || 'hi'
+)
 
 interface OutputLine {
   text: string
@@ -328,6 +333,11 @@ watch(
       testPrompt.value = ''
       testMode.value = 'default'
       resetState()
+      try {
+        await adminSettingsStore.refreshAccountTestPrompt()
+      } catch (error) {
+        console.error('Failed to load account test prompt:', error)
+      }
       await loadAvailableModels()
     } else {
       abortStream()
@@ -500,7 +510,7 @@ const handleEvent = (event: {
       addLine(
         supportsImageTest.value
             ? t('admin.accounts.sendingImageRequest')
-            : t('admin.accounts.sendingTestMessage'),
+            : t('admin.accounts.sendingTestMessage', { prompt: configuredAccountTestPrompt.value }),
         'text-gray-400'
       )
       addLine('', 'text-gray-300')

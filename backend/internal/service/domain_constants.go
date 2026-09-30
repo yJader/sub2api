@@ -453,6 +453,7 @@ const (
 	// Request identity patch (Claude -> Gemini systemInstruction injection)
 	SettingKeyEnableIdentityPatch = "enable_identity_patch"
 	SettingKeyIdentityPatchPrompt = "identity_patch_prompt"
+	SettingKeyAccountTestPrompt   = "account_test_prompt"
 
 	// =========================
 	// Ops Monitoring (vNext)

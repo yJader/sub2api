@@ -56,6 +56,7 @@ func (s *SettingService) InitializeDefaultSettings(ctx context.Context) error {
 	// 初始化默认设置
 	defaults := map[string]string{
 		SettingKeyRegistrationEnabled:                       "true",
+		SettingKeyAccountTestPrompt:                         defaultAccountTextTestPrompt,
 		SettingKeyEmailVerifyEnabled:                        "false",
 		SettingKeyRegistrationEmailSuffixWhitelist:          "[]",
 		SettingKeyRegistrationEmailDomainQuotaEnabled:       "false",
@@ -782,6 +783,7 @@ func (s *SettingService) parseSettings(settings map[string]string) *SystemSettin
 		result.EnableIdentityPatch = true
 	}
 	result.IdentityPatchPrompt = settings[SettingKeyIdentityPatchPrompt]
+	result.AccountTestPrompt = normalizeAccountTestPrompt(settings[SettingKeyAccountTestPrompt])
 
 	// Ops monitoring settings (default: enabled, fail-open)
 	result.OpsMonitoringEnabled = !isFalseSettingValue(settings[SettingKeyOpsMonitoringEnabled])

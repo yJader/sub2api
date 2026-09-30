@@ -50,6 +50,12 @@ export const useAdminSettingsStore = defineStore('adminSettings', () => {
   const opsQueryModeDefault = ref(readCachedString('ops_query_mode_default_cached', 'auto'))
   const paymentEnabled = ref(readCachedBool('payment_enabled_cached', false))
   const customMenuItems = ref<CustomMenuItem[]>([])
+  const accountTestPrompt = ref('hi')
+
+  async function refreshAccountTestPrompt(): Promise<void> {
+    const settings = await adminAPI.settings.getSettings()
+    accountTestPrompt.value = settings.account_test_prompt?.trim() || 'hi'
+  }
 
   async function fetch(force = false): Promise<void> {
     if (loaded.value && !force) return
@@ -71,6 +77,7 @@ export const useAdminSettingsStore = defineStore('adminSettings', () => {
       writeCachedString('ops_query_mode_default_cached', opsQueryModeDefault.value)
 
       customMenuItems.value = Array.isArray(settings.custom_menu_items) ? settings.custom_menu_items : []
+      accountTestPrompt.value = settings.account_test_prompt?.trim() || 'hi'
 
       paymentEnabled.value = paymentConfigResp.data?.enabled ?? false
       writeCachedBool('payment_enabled_cached', paymentEnabled.value)
@@ -140,7 +147,9 @@ export const useAdminSettingsStore = defineStore('adminSettings', () => {
     opsQueryModeDefault,
     paymentEnabled,
     customMenuItems,
+    accountTestPrompt,
     fetch,
+    refreshAccountTestPrompt,
     setOpsMonitoringEnabledLocal,
     setOpsRealtimeMonitoringEnabledLocal,
     setPaymentEnabledLocal,

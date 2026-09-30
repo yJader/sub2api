@@ -224,8 +224,9 @@ type UpdateSettingsRequest struct {
 	FallbackModelAntigravity string `json:"fallback_model_antigravity"`
 
 	// Identity patch configuration (Claude -> Gemini)
-	EnableIdentityPatch bool   `json:"enable_identity_patch"`
-	IdentityPatchPrompt string `json:"identity_patch_prompt"`
+	EnableIdentityPatch bool    `json:"enable_identity_patch"`
+	IdentityPatchPrompt string  `json:"identity_patch_prompt"`
+	AccountTestPrompt   *string `json:"account_test_prompt"`
 
 	// Ops monitoring (vNext)
 	OpsMonitoringEnabled         *bool   `json:"ops_monitoring_enabled"`
@@ -1667,10 +1668,16 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		FallbackModelAntigravity:               req.FallbackModelAntigravity,
 		EnableIdentityPatch:                    req.EnableIdentityPatch,
 		IdentityPatchPrompt:                    req.IdentityPatchPrompt,
-		MinClaudeCodeVersion:                   req.MinClaudeCodeVersion,
-		MaxClaudeCodeVersion:                   req.MaxClaudeCodeVersion,
-		AllowUngroupedKeyScheduling:            req.AllowUngroupedKeyScheduling,
-		BackendModeEnabled:                     req.BackendModeEnabled,
+		AccountTestPrompt: func() string {
+			if req.AccountTestPrompt != nil {
+				return *req.AccountTestPrompt
+			}
+			return previousSettings.AccountTestPrompt
+		}(),
+		MinClaudeCodeVersion:        req.MinClaudeCodeVersion,
+		MaxClaudeCodeVersion:        req.MaxClaudeCodeVersion,
+		AllowUngroupedKeyScheduling: req.AllowUngroupedKeyScheduling,
+		BackendModeEnabled:          req.BackendModeEnabled,
 		AllowUserViewErrorRequests: func() bool {
 			if req.AllowUserViewErrorRequests != nil {
 				return *req.AllowUserViewErrorRequests
@@ -2328,6 +2335,7 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		FallbackModelAntigravity:                               updatedSettings.FallbackModelAntigravity,
 		EnableIdentityPatch:                                    updatedSettings.EnableIdentityPatch,
 		IdentityPatchPrompt:                                    updatedSettings.IdentityPatchPrompt,
+		AccountTestPrompt:                                      updatedSettings.AccountTestPrompt,
 		OpsMonitoringEnabled:                                   updatedSettings.OpsMonitoringEnabled,
 		OpsRealtimeMonitoringEnabled:                           updatedSettings.OpsRealtimeMonitoringEnabled,
 		OpsQueryModeDefault:                                    updatedSettings.OpsQueryModeDefault,

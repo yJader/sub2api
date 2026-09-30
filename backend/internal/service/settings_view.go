@@ -190,6 +190,7 @@ type SystemSettings struct {
 	// Identity patch configuration (Claude -> Gemini)
 	EnableIdentityPatch bool   `json:"enable_identity_patch"`
 	IdentityPatchPrompt string `json:"identity_patch_prompt"`
+	AccountTestPrompt   string `json:"account_test_prompt"`
 
 	// Ops monitoring (vNext)
 	OpsMonitoringEnabled         bool

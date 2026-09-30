@@ -3,8 +3,9 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { defineComponent } from 'vue'
 import AccountTestModal from '../AccountTestModal.vue'
 
-const { getAvailableModelsMock } = vi.hoisted(() => ({
-  getAvailableModelsMock: vi.fn()
+const { getAvailableModelsMock, refreshAccountTestPromptMock } = vi.hoisted(() => ({
+  getAvailableModelsMock: vi.fn(),
+  refreshAccountTestPromptMock: vi.fn()
 }))
 
 vi.mock('@/api/admin', () => ({
@@ -18,6 +19,13 @@ vi.mock('@/api/admin', () => ({
 vi.mock('@/composables/useClipboard', () => ({
   useClipboard: () => ({
     copyToClipboard: vi.fn()
+  })
+}))
+
+vi.mock('@/stores/adminSettings', () => ({
+  useAdminSettingsStore: () => ({
+    accountTestPrompt: 'ciallo',
+    refreshAccountTestPrompt: refreshAccountTestPromptMock
   })
 }))
 
@@ -102,6 +110,7 @@ describe('AccountTestModal', () => {
     getAvailableModelsMock.mockResolvedValue([
       { id: 'gpt-5.4', display_name: 'GPT-5.4' }
     ])
+    refreshAccountTestPromptMock.mockResolvedValue(undefined)
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       body: {
@@ -121,7 +130,7 @@ describe('AccountTestModal', () => {
   it('posts compact mode for OpenAI compact probe', async () => {
     const wrapper = mount(AccountTestModal, {
       props: {
-        show: true,
+        show: false,
         account: buildAccount()
       },
       global: {
@@ -134,6 +143,7 @@ describe('AccountTestModal', () => {
       }
     })
 
+    await wrapper.setProps({ show: true })
     await flushPromises()
     ;(wrapper.vm as any).selectedModelId = 'gpt-5.4'
     ;(wrapper.vm as any).testMode = 'compact'
@@ -188,5 +198,28 @@ describe('AccountTestModal', () => {
     await flushPromises()
 
     expect(wrapper.text()).toContain('已通过 /v1/chat/completions 验证')
+  })
+
+  it('loads the configured text test prompt when opened', async () => {
+    const wrapper = mount(AccountTestModal, {
+      props: {
+        show: false,
+        account: buildAccount()
+      },
+      global: {
+        stubs: {
+          BaseDialog: BaseDialogStub,
+          Select: SelectStub,
+          TextArea: TextAreaStub,
+          Icon: true
+        }
+      }
+    })
+
+    await wrapper.setProps({ show: true })
+    await flushPromises()
+
+    expect(refreshAccountTestPromptMock).toHaveBeenCalled()
+    expect(wrapper.text()).toContain('admin.accounts.testPrompt')
   })
 })

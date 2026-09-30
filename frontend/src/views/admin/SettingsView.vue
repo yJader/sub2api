@@ -6451,6 +6451,24 @@
                 </div>
               </div>
 
+              <!-- Account test prompt -->
+              <div>
+                <label for="account-test-prompt" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {{ t('admin.settings.site.accountTestPrompt') }}
+                </label>
+                <input
+                  id="account-test-prompt"
+                  v-model="form.account_test_prompt"
+                  type="text"
+                  maxlength="500"
+                  class="input w-full"
+                  :placeholder="t('admin.settings.site.accountTestPromptPlaceholder')"
+                />
+                <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                  {{ t('admin.settings.site.accountTestPromptHint') }}
+                </p>
+              </div>
+
               <!-- API Base URL -->
               <div>
                 <label
@@ -9957,6 +9975,7 @@ const form = reactive<SettingsForm>({
   // Identity patch (Claude -> Gemini)
   enable_identity_patch: true,
   identity_patch_prompt: "",
+  account_test_prompt: "hi",
   // Ops monitoring (vNext)
   ops_monitoring_enabled: true,
   ops_realtime_monitoring_enabled: true,
@@ -11618,6 +11637,7 @@ async function saveSettings() {
       grok_default_base_url_mode: form.grok_default_base_url_mode,
       enable_identity_patch: form.enable_identity_patch,
       identity_patch_prompt: form.identity_patch_prompt,
+      account_test_prompt: form.account_test_prompt,
       min_claude_code_version: form.min_claude_code_version,
       max_claude_code_version: form.max_claude_code_version,
       allow_ungrouped_key_scheduling: form.allow_ungrouped_key_scheduling,
